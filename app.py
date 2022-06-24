@@ -19,10 +19,10 @@ app.secret_key = 'AHjkaIllq!@$%^&*()'
 # ==== Model ====
 
 # conect db MySQL
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
-app.config['MYSQL_DB'] = 'db_buku'
+app.config['MYSQL_HOST'] = 'ec2-44-206-89-185.compute-1.amazonaws.com'
+app.config['MYSQL_USER'] = 'ixvwirkbsvzgoh'
+app.config['MYSQL_PASSWORD'] = '6c185f67f72bc6cd19631e8d98e3955a647a469af0318626d54cecccebff4f32'
+app.config['MYSQL_DB'] = 'dct53dh5u7jt4m'
 
   
 # get_book
