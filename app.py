@@ -22,8 +22,8 @@ app.secret_key = 'AHjkaIllq!@$%^&*()'
 conn = psycopg2.connect(
         host="ec2-44-206-89-185.compute-1.amazonaws.com",
         database="dct53dh5u7jt4m",
-        user=os.environ['ixvwirkbsvzgoh'],
-        password=os.environ['6c185f67f72bc6cd19631e8d98e3955a647a469af0318626d54cecccebff4f32'])
+        user="ixvwirkbsvzgoh",
+        password="6c185f67f72bc6cd19631e8d98e3955a647a469af0318626d54cecccebff4f32")
 cursor = conn.cursor()
   
 # get_book
