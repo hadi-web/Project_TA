@@ -33,7 +33,7 @@ def get_books(offset=0, per_page=10):
 
 # create tables
 def create_tables():
-    conn = MySQLdb.connect(host='localhost', user='root', passwd='', db='db_buku')
+    conn = MySQLdb.connect(host='ec2-44-206-89-185.compute-1.amazonaws.com', user='ixvwirkbsvzgoh', passwd='6c185f67f72bc6cd19631e8d98e3955a647a469af0318626d54cecccebff4f32', db='dct53dh5u7jt4m')
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE `tbl_user` (`id_user` int(11) NOT NULL AUTO_INCREMENT,`nama` varchar(50) NOT NULL,`username` varchar(50) NOT NULL,`password` varchar(50) NOT NULL,`email` varchar(50) NOT NULL,`address` varchar(50) NOT NULL,PRIMARY KEY (`id_user`)) ENGINE=InnoDB DEFAULT CHARSET=latin1")
     cursor.execute("CREATE TABLE `tbl_buku` (`id_buku` int(11) NOT NULL AUTO_INCREMENT,`judul` varchar(250) NOT NULL,`penerbit` varchar(50) NOT NULL,`tahun_terbit` int(11) NOT NULL,`tempat_terbit` varchar(50) NOT NULL,`pengarang` varchar(50) NOT NULL,`kategori` varchar(50) NOT NULL,PRIMARY KEY (`id_buku`)) ENGINE=InnoDB DEFAULT CHARSET=latin1")
