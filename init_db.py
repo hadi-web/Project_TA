@@ -18,8 +18,15 @@ cur.execute('CREATE TABLE books (id serial PRIMARY KEY,'
                                  'tahun_terbit integer NOT NULL,'
                                  'tempat_terbit varchar (150) NOT NULL,'
                                  'pengarang varchar (250) NOT NULL,'
-                                 'kategori varchar (50) NOT NULL,'
-                                 'date_added date DEFAULT CURRENT_TIMESTAMP);'
+                                 'kategori varchar (50) NOT NULL);'
+                                 )
+
+cur.execute('DROP TABLE IF EXISTS users;')
+cur.execute('CREATE TABLE users (id serial PRIMARY KEY,'
+                                 'nama varchar (250) NOT NULL,'
+                                 'username varchar (50) NOT NULL,'
+                                 'password integer NOT NULL,'
+                                 'email varchar (150) NOT NULL);'
                                  )
 
 # Insert data into the table

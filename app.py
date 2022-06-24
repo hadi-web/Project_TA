@@ -1,5 +1,4 @@
 from functools import wraps
-import os
 import pickle
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 from flask_paginate import Pagination, get_page_args
@@ -8,9 +7,10 @@ from hashlib import md5
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection  import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
+from flask_mysqldb import MySQL
+import MySQLdb.cursors
 import re
 from imblearn.over_sampling import SMOTE
-import psycopg2
 
 app = Flask(__name__)
 app.secret_key = 'AHjkaIllq!@$%^&*()'
@@ -19,21 +19,21 @@ app.secret_key = 'AHjkaIllq!@$%^&*()'
 # ==== Model ====
 
 # conect db MySQL
-conn = psycopg2.connect(
-        host="ec2-44-206-89-185.compute-1.amazonaws.com",
-        database="dct53dh5u7jt4m",
-        user="ixvwirkbsvzgoh",
-        password="6c185f67f72bc6cd19631e8d98e3955a647a469af0318626d54cecccebff4f32")
-cursor = conn.cursor()
+app.config['MYSQL_HOST'] = 'www.cleardb.com/database/details?id=70E191DA35FA3FDFAADDAE7A48761FD3'
+app.config['MYSQL_USER'] = 'b34c5f92f21a19'
+app.config['MYSQL_PASSWORD'] = '27d0e01a'
+app.config['MYSQL_DB'] = 'heroku_82c5fa00d5406b1'
+
   
 # get_book
 def get_books(offset=0, per_page=10):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('SELECT * FROM tbl_buku LIMIT %s, %s', (offset, per_page))
     return cursor.fetchall()
 
 # create tables
 def create_tables():
-    conn = psycopg2.connect(host='ec2-44-206-89-185.compute-1.amazonaws.com', user='ixvwirkbsvzgoh', passwd='6c185f67f72bc6cd19631e8d98e3955a647a469af0318626d54cecccebff4f32', db='dct53dh5u7jt4m')
+    conn = MySQLdb.connect(host='www.cleardb.com/database/details?id=70E191DA35FA3FDFAADDAE7A48761FD3', user='b34c5f92f21a19', passwd='27d0e01a', db='heroku_82c5fa00d5406b1')
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE `tbl_user` (`id_user` int(11) NOT NULL AUTO_INCREMENT,`nama` varchar(50) NOT NULL,`username` varchar(50) NOT NULL,`password` varchar(50) NOT NULL,`email` varchar(50) NOT NULL,`address` varchar(50) NOT NULL,PRIMARY KEY (`id_user`)) ENGINE=InnoDB DEFAULT CHARSET=latin1")
     cursor.execute("CREATE TABLE `tbl_buku` (`id_buku` int(11) NOT NULL AUTO_INCREMENT,`judul` varchar(250) NOT NULL,`penerbit` varchar(50) NOT NULL,`tahun_terbit` int(11) NOT NULL,`tempat_terbit` varchar(50) NOT NULL,`pengarang` varchar(50) NOT NULL,`kategori` varchar(50) NOT NULL,PRIMARY KEY (`id_buku`)) ENGINE=InnoDB DEFAULT CHARSET=latin1")
@@ -63,7 +63,7 @@ def login_required(f):
 # ===============
 
 
-mysql = psycopg2(app)
+mysql = MySQL(app)
 # =============================================
 # Routing Homepage ============================
 # =============================================
@@ -71,8 +71,8 @@ mysql = psycopg2(app)
 @login_required
 def homepage():
     if 'username' in session:
-
-        cursor_user = mysql.connection.cursor(psycopg2.cursors.DictCursor)
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor_user = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         # num rows in table buku
         cursor.execute('SELECT * FROM tbl_buku')
         cursor_user.execute('SELECT * FROM tbl_user')
@@ -110,7 +110,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         # create cursor
-
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         # get user by username
         cursor.execute('SELECT * FROM tbl_user WHERE username = %s', [username])
         # fetch one row
@@ -161,7 +161,7 @@ def register():
             password = md5(request.form['password'].encode('utf-8')).hexdigest()
             email = request.form['email']
             address = request.form['address']
-    
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             cursor.execute('SELECT * FROM tbl_user WHERE username = % s', (username, ))
             account = cursor.fetchone()
             if account:
@@ -191,7 +191,7 @@ def buku():
         total = get_total_buku()
         pagination_books = get_books(offset=offset, per_page=per_page)
         pagination = Pagination(page=page, per_page=per_page, total=total, css_framework='bootstrap3')
-        ctgs = mysql.connection.cursor(psycopg2.cursors.DictCursor)
+        ctgs = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         ctgs.execute('SELECT * FROM tbl_kategori')
         ctg = ctgs.fetchall()
         return render_template('buku.html',buku=pagination_books,page=page,per_page=10,pagination=pagination, ctg=ctg)
@@ -200,6 +200,7 @@ def buku():
         return redirect(url_for('login'))
 
 def get_total_buku():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute('SELECT * FROM tbl_buku')
     return cursor.rowcount
 
@@ -209,8 +210,8 @@ def search():
     if request.method == "POST":
         book = request.form['book']
         # search by judul, pengarang, penerbit, tahun terbit, penerbit, kategori
-
-        ctgs = mysql.connection.cursor(psycopg2.cursors.DictCursor)
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        ctgs = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute('SELECT * FROM tbl_buku WHERE judul LIKE %s OR pengarang LIKE %s OR penerbit LIKE %s OR tahun_terbit LIKE %s OR penerbit LIKE %s OR kategori LIKE %s OR tempat_terbit LIKE %s', ('%'+book+'%', '%'+book+'%', '%'+book+'%', '%'+book+'%', '%'+book+'%', '%'+book+'%', '%'+book+'%'))
         ctgs.execute('SELECT * FROM tbl_kategori')
         books = cursor.fetchall()
@@ -253,7 +254,7 @@ def add_book():
             data1 = [judul + penerbit + tempat_terbit + pengarang]
             vect = tfidf_vectorizer.transform(data1)
             my_predict = clf.predict(vect)
-    
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             # account = cursor.fetchone()
             cursor.execute('INSERT INTO tbl_buku VALUES (NULL, % s, % s, % s, % s, % s, % s )', (judul, penerbit, tahun_terbit, tempat_terbit, pengarang, my_predict[0] ))
             mysql.connection.commit()
@@ -292,7 +293,7 @@ def update_book():
             data1 = [judul + penerbit + tempat_terbit + pengarang]
             vect = tfidf_vectorizer.transform(data1)
             my_predict = clf.predict(vect)
-    
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             # account = cursor.fetchone()
             cursor.execute('UPDATE tbl_buku SET judul = % s, penerbit = % s, tahun_terbit = % s, tempat_terbit = % s, pengarang = % s, kategori = % s WHERE id_buku = % s', (judul, penerbit, tahun_terbit, tempat_terbit, pengarang, my_predict[0], id_buku))
             mysql.connection.commit()
@@ -316,7 +317,7 @@ def update_kategori():
             pengarang = request.form['pengarang']
             tahun_terbit = request.form['tahun_terbit']
             kategori = request.form['kategori']
-    
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             # account = cursor.fetchone()
             cursor.execute('UPDATE tbl_buku SET judul = % s, penerbit = % s, tahun_terbit = % s, tempat_terbit = % s, pengarang = % s, kategori = % s WHERE id_buku = % s', (judul, penerbit, tahun_terbit, tempat_terbit, pengarang, kategori, id_buku))
             mysql.connection.commit()
@@ -335,7 +336,7 @@ def delete_buku():
     if 'username' in session:
         if request.method == 'POST' and 'id_buku' in request.form:
             id_buku = request.form['id_buku']
-    
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             cursor.execute('DELETE FROM tbl_buku WHERE id_buku = % s', (id_buku, ))
             mysql.connection.commit()
             flash('Buku berhasil dihapus')
