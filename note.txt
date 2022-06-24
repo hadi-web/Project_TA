@@ -1,0 +1,9 @@
+Langkah pertama :
+export database dengan cara
+ketikan env\Scripts\activate di terminal
+kemudian ketikan Python pada terminal
+setelah masuk kedalam powershell python, kemudian ikuti langkah berikut ini 
+
+>>> from app import *
+>>> create_tables()
+>>> exit()

@@ -1,0 +1,268 @@
+{% extends 'layout.html' %}
+{% block page_title %}
+    {{ 'Buku'}}
+{% endblock %}
+{% block breadcrumb %}
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('homepage') }}"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li class="active" aria-current="page">{{'Buku'}}</li>
+    </ol>
+{% endblock %}
+{% set active_page = "buku" %}
+<!-- DataTables -->
+<link rel="stylesheet" href="{{url_for('static', filename='dataTables.bootstrap.css')}}">
+{% block body %}
+<section class="content">
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-success alert-dismissible">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">x</button>
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+  {% endif %}
+  {% endwith %}
+  <div class="row">
+    <div class="col-xs-12">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addBookModal">
+            Tambah Koleksi
+        </button>
+        <div class="box">
+          <div class="box-header">
+            <h3 class="box-title">Data Koleksi Buku</h3>
+          </div>
+          <!-- /.box-header -->
+          <div id='bkTable' class="box-body table-responsive">
+              <!--search in table-->
+              <form action="{{ url_for('search') }}" method="post">
+                <div class="input-group">
+                  <input type="text" name="book" class="form-control" placeholder="Cari Berdasarkan Judul,Kategori,Tempat Terbit...">
+                      <span class="input-group-btn">
+                        <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
+                        </button>
+                      </span>
+                </div>
+              </form>
+                <table id= "tbl_buku" class="table table-bordered table-hover display">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Judul Buku</th>
+                            <th>Penerbit</th>
+                            <th>Tahun Terbit</th>
+                            <th>Tempat Terbit</th>
+                            <th>Pengarang</th>
+                            <th>Kategori Buku</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- if value is empty-->
+                        {% if not buku  %}
+                            <tr>
+                                <td colspan="7" class="text-center">Tidak ada data</td>
+                            </tr>
+                            {% else %}
+                            {% for row in buku %}
+                                <tr>
+                                    <td>{{ loop.index + (page - 1) * per_page }}</td>
+                                    <td>{{ row.judul}}</td>
+                                    <td>{{ row.penerbit }}</td>
+                                    <td>{{ row.tahun_terbit }}</td>
+                                    <td>{{ row.tempat_terbit }}</td>
+                                    <td>{{ row.pengarang }}</td>
+                                    <td>{{ row.kategori.upper() }}</td>
+                                        <td>
+                                            <div class="d-grid gap-2">
+                                                <!--update book modals-->
+                                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateBookModal{{loop.index}}">
+                                                    <i class="fa fa-edit"> Edit Buku</i>
+                                                </button>
+                                                <!--update kategori modals-->
+                                                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#updateKategoriModal{{loop.index}}">
+                                                    <i class="fa fa-edit"> Edit Kategori</i>
+                                                </button>
+                                                <!--Delete book modals-->
+                                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteBookModal{{row.id_buku}}">
+                                                    <i class="fa fa-trash"> Hapus Buku</i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                    </tbody>
+                </table>
+                <!--pagination-->
+                {{pagination.info}}
+                {{pagination.links}}
+            </div> 
+            <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
+    </div>
+    <!-- /.col -->
+    </div>
+    <!-- /.row -->
+    <!--Modals add book  -->
+    <div class="modal fade" id="addBookModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Tambah Koleksi Buku</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{url_for('add_book')}}" method="POST">
+                        <div class="form-group">
+                            <label for="judul">Judul Buku</label>
+                            <input type="text" class="form-control" id="judul" name="judul" placeholder="Judul Buku" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="penerbit">Penerbit</label>
+                            <input type="text" class="form-control" id="penerbit" name="penerbit" placeholder="Penerbit" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tahun_terbit">Tahun Terbit</label>
+                            <input type="number" class="form-control" id="tahun_terbit" name="tahun_terbit" placeholder="Tahun Terbit" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tempat_terbit">Tempat Terbit</label>
+                            <input type="text" class="form-control" id="tempat_terbit" name="tempat_terbit" placeholder="Tempat Terbit" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="pengarang">Pengarang</label>
+                            <input type="text" class="form-control" id="pengarang" name="pengarang" placeholder="Pengarang" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="Kategori Buku">Kategori Buku</label>
+                            <input type="text" class="form-control" id="Kategori Buku" name="kategori" placeholder="Kategori Buku" disabled>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Tambah Koleksi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--End Modals add book  -->
+{% for row in buku %}
+<!--Modals update book -->
+<div class="modal fade" id="updateBookModal{{loop.index}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Update Koleksi Buku</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{url_for('update_book')}}" method="POST" autocomplete="off">
+                    <div class="form-group">
+                        <label for="judul">Judul Buku</label>
+                        <input type="text" class="form-control" id="judul" name="judul" placeholder="Judul Buku" value="{{row.judul}}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="penerbit">Penerbit</label>
+                        <input type="text" class="form-control" id="penerbit" name="penerbit" placeholder="Penerbit" value="{{row.penerbit}}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tahun_terbit">Tahun Terbit</label>
+                        <input type="number" class="form-control" id="tahun_terbit" name="tahun_terbit" placeholder="Tahun Terbit" value="{{row.tahun_terbit}}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tempat_terbit">Tempat Terbit</label>
+                        <input type="text" class="form-control" id="tempat_terbit" name="tempat_terbit" placeholder="Tempat Terbit" value="{{row.tempat_terbit}}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pengarang">Pengarang</label>
+                        <input type="text" class="form-control" id="pengarang" name="pengarang" placeholder="Pengarang" value="{{row.pengarang}}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="kategori">Kategori Buku</label>
+                        <!--option with class selected and checkbox-->
+                        <select class="form-control" id="kategori" name="kategori" disabled>
+                            <option value="{{row.kategori}}">{{row.kategori.upper()}}</option>
+                        </select>
+                    </div>
+                    <input type="hidden" name="id_buku" value="{{row.id_buku}}">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Update Koleksi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--End Modals update book -->
+<!--Modals Edit Kategori-->
+<div class="modal fade" id="updateKategoriModal{{loop.index}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit Kategori Buku</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{url_for('update_kategori')}}" method="POST" autocomplete="off">
+                        <input type="hidden" class="form-control" id="judul" name="judul" placeholder="Judul Buku" value="{{row.judul}}">
+                        <input type="hidden" class="form-control" id="penerbit" name="penerbit" placeholder="Penerbit" value="{{row.penerbit}}">
+                        <input type="hidden" class="form-control" id="tahun_terbit" name="tahun_terbit" placeholder="Tahun Terbit" value="{{row.tahun_terbit}}">
+                        <input type="hidden" class="form-control" id="tempat_terbit" name="tempat_terbit" placeholder="Tempat Terbit" value="{{row.tempat_terbit}}">
+                        <input type="hidden" class="form-control" id="pengarang" name="pengarang" placeholder="Pengarang" value="{{row.pengarang}}">
+                    <div class="form-group">
+                        <label for="kategori">Kategori Buku</label>
+                        <!--option with class selected and checkbox-->
+                        <select class="form-control" id="kategori" name="kategori">
+                            {% for row2 in ctg %}
+                                <option value="{{row2.kategori}}">{{row2.kategori.upper()}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <input type="hidden" name="id_buku" value="{{row.id_buku}}">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Update Koleksi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--End Modals Edit Kategori-->
+
+<!-- modals delete -->
+<div class="modal fade" id="deleteBookModal{{row.id_buku}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete Buku</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{url_for('delete_buku')}}" method="POST" autocomplete="off">
+                    <div class="form-group">
+                        <h5>Apakah anda yakin akan menghapus buku ini dari koleksi perpustakaan ?</h5>
+                    </div>
+                    <input type="hidden" name="id_buku" value="{{row.id_buku}}">
+                    <button type="submit" class="btn btn-danger">Hapus</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Batal</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+<!-- end modals delete -->
+{% endblock body %}

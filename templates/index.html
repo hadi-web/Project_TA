@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+{% block page_title %}
+    {{ 'Dashboard'}}
+{% endblock %}
+{% set active_page = "homepage" %}
+{% block body %}
+<!-- Main content -->
+<section class="content">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="alert alert-success alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">x</button>
+            <i class="icon fa fa-check"></i>
+            {{ messages[0] }}</p>
+      </div>
+    {% endif %}
+    {% endwith %}
+    <!-- Small boxes (Stat box) -->
+     <div class="row">
+      <div class="col-lg-3 col-xs-6">
+        <!-- small box -->
+        <div class="small-box bg-aqua">
+          <div class="inner">
+            <!---show num rows in flask-->
+            <h3>
+              {{ num_rows }}
+            </h3>
+
+            <p>Koleksi Buku</p>
+          </div>
+          <div class="icon">
+            <i class="fa fa-book"></i>
+          </div>
+          <a href="{{url_for('buku')}}" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+        </div>
+      </div>
+    </div>
+    <!-- /.row -->
+    <!-- Main row -->
+  </section>
+  <!-- /.content -->
+
+{% endblock body %}

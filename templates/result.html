@@ -1,0 +1,57 @@
+{% extends 'layout.html' %}
+{% block body %}
+	<header>
+		<div class="container">
+		<div id="brandname">
+			Classification Jenis Buku Dengan Naive Bayes Classifier
+		</div>
+		<h2>Hasil Klasifikasi</h2>
+
+	</div>
+	</header>
+	<div class="results">
+	{% if prediction == 1%}
+	<h2 style="color:red;">Agama</h2>
+	{% elif prediction == 2%}
+	<h2 style="color:blue;">Akuntansi</h2>
+	{% elif prediction == 3%}
+	<h2 style="color:blue;">Umum</h2>
+	{% elif prediction == 4%}
+	<h2 style="color:blue;">Komputer</h2>
+	{% elif prediction == 5%}
+	<h2 style="color:blue;">Elektronika</h2>
+	{% elif prediction == 6%}
+	<h2 style="color:blue;">Farmasi</h2>
+	{% elif prediction == 7%}
+	<h2 style="color:blue;">Fiction</h2>
+	{% elif prediction == 8%}
+	<h2 style="color:blue;">Informatika</h2>
+	{% elif prediction == 9%}
+	<h2 style="color:blue;">Kebidanan</h2>
+	{% elif prediction == 10%}
+	<h2 style="color:blue;">Kesehatan</h2>
+	{% elif prediction == 11%}
+	<h2 style="color:blue;">Laporan KKL</h2>
+	{% elif prediction == 12%}
+	<h2 style="color:blue;">Laporan KP</h2>
+	{% elif prediction == 13%}
+	<h2 style="color:blue;">Laporan Penelitian Dosen</h2>
+	{% elif prediction == 14%}
+	<h2 style="color:blue;">Laporan PKM</h2>
+	{% elif prediction == 15%}
+	<h2 style="color:blue;">Laporan TA/KTI</h2>
+	{% elif prediction == 16%}
+	<h2 style="color:blue;">Perhotelan</h2>
+	{% elif prediction == 17%}
+	<h2 style="color:blue;">Mesin</h2>
+	{% elif prediction == 18%}
+	<h2 style="color:blue;">Prosiding</h2>
+	{% elif prediction == 19%}
+	<h2 style="color:blue;">Reference</h2>
+	{% elif prediction == 20%}
+	<h2 style="color:blue;">Teknik</h2>
+	{% endif %}
+	</div>
+	
+	{% endblock body %}
+</html>
