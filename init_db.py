@@ -24,16 +24,6 @@ cur.execute('CREATE TABLE books (id serial PRIMARY KEY,'
 
 # Insert data into the table
 
-cur.execute('INSERT INTO books (judul, penerbit, tahun_terbit, tempat_terbit, pengarang, kategori)'
-            'VALUES (%s, %s, %s, %s, %s, %s, %s)',
-            ('Pendidikan Agama Islam',
-             'Noura Books',
-             2004,
-             'Jakarta',
-             'Wahyudin, Achmad, M.Ilyas, M.Saifullah'
-             'umum')
-            )
-
 
 conn.commit()
 
