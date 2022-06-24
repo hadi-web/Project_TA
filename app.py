@@ -374,10 +374,9 @@ def hasil():
             X_test_tfidf = tfidf_model.fit_transform(X_test['Judul'] + ' ' + 
                                                      X_test['Penerbit'] + ' ' + 
                                                      X_test['Tempat Terbit'] + ' ' + X_test['Pengarang'])
-            vect = tfidf_model.transform(X_test_tfidf)
+            vect = tfidf_model.transform(X_test_tfidf).toarray()
             model = pickle.load(open('model.pkl', 'rb'))
             pred = model.predict(vect)
-            a = pd.DataFrame(pred)
             X_test['pred'] = pred
             return X_test.to_html(index=False)
             
