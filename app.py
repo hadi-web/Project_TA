@@ -19,7 +19,7 @@ app.secret_key = 'AHjkaIllq!@$%^&*()'
 # ==== Model ====
 
 # conect db MySQL
-app.config['MYSQL_HOST'] = 'www.cleardb.com/database/details?id=70E191DA35FA3FDFAADDAE7A48761FD3'
+app.config['MYSQL_HOST'] = 'us-cdbr-east-05.cleardb.net'
 app.config['MYSQL_USER'] = 'b34c5f92f21a19'
 app.config['MYSQL_PASSWORD'] = '27d0e01a'
 app.config['MYSQL_DB'] = 'heroku_82c5fa00d5406b1'
@@ -33,7 +33,7 @@ def get_books(offset=0, per_page=10):
 
 # create tables
 def create_tables():
-    conn = MySQLdb.connect(host='www.cleardb.com/database/details?id=70E191DA35FA3FDFAADDAE7A48761FD3', user='b34c5f92f21a19', passwd='27d0e01a', db='heroku_82c5fa00d5406b1')
+    conn = MySQLdb.connect(host='us-cdbr-east-05.cleardb.net', user='b34c5f92f21a19', passwd='27d0e01a', db='heroku_82c5fa00d5406b1')
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE `tbl_user` (`id_user` int(11) NOT NULL AUTO_INCREMENT,`nama` varchar(50) NOT NULL,`username` varchar(50) NOT NULL,`password` varchar(50) NOT NULL,`email` varchar(50) NOT NULL,`address` varchar(50) NOT NULL,PRIMARY KEY (`id_user`)) ENGINE=InnoDB DEFAULT CHARSET=latin1")
     cursor.execute("CREATE TABLE `tbl_buku` (`id_buku` int(11) NOT NULL AUTO_INCREMENT,`judul` varchar(250) NOT NULL,`penerbit` varchar(50) NOT NULL,`tahun_terbit` int(11) NOT NULL,`tempat_terbit` varchar(50) NOT NULL,`pengarang` varchar(50) NOT NULL,`kategori` varchar(50) NOT NULL,PRIMARY KEY (`id_buku`)) ENGINE=InnoDB DEFAULT CHARSET=latin1")
