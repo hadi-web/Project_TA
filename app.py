@@ -37,6 +37,7 @@ def create_tables():
     cursor = conn.cursor()
     cursor.execute("CREATE TABLE `tbl_user` (`id_user` int(11) NOT NULL AUTO_INCREMENT,`nama` varchar(50) NOT NULL,`username` varchar(50) NOT NULL,`password` varchar(50) NOT NULL,`email` varchar(50) NOT NULL,`address` varchar(50) NOT NULL,PRIMARY KEY (`id_user`)) ENGINE=InnoDB DEFAULT CHARSET=latin1")
     cursor.execute("CREATE TABLE `tbl_buku` (`id_buku` int(11) NOT NULL AUTO_INCREMENT,`judul` varchar(250) NOT NULL,`penerbit` varchar(50) NOT NULL,`tahun_terbit` int(11) NOT NULL,`tempat_terbit` varchar(50) NOT NULL,`pengarang` varchar(50) NOT NULL,`kategori` varchar(50) NOT NULL,PRIMARY KEY (`id_buku`)) ENGINE=InnoDB DEFAULT CHARSET=latin1")
+    cursor.execute("CREATE TABLE `tbl_kategori` (`id_kategori` varchar(50) NOT NULL,`kategori` varchar(50) NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=latin1;")
     conn.commit()
     conn.close()
 
@@ -370,13 +371,14 @@ def hasil():
             csv_file = request.files['file_csv']
             X_test = pd.read_csv(csv_file)
             tfidf_model = TfidfVectorizer(ngram_range=(1, 2))
-            X_test_tfidf = tfidf_model.fit_transform(X_test['Judul'] + ' ' + X_test['Penerbit'] + ' ' + X_test['Tempat Terbit'] + ' ' + X_test['Pengarang'])
-            vect = tfidf_model.transform(X_test_tfidf).toarray()
+            X_test_tfidf = tfidf_model.fit_transform(X_test['Judul'] + ' ' + 
+                                                     X_test['Penerbit'] + ' ' + 
+                                                     X_test['Tempat Terbit'] + ' ' + X_test['Pengarang'])
+            vect = tfidf_model.transform(X_test_tfidf)
             model = pickle.load(open('model.pkl', 'rb'))
             pred = model.predict(vect)
             a = pd.DataFrame(pred)
             X_test['pred'] = pred
-            a.to_csv('model.csv', index=False)
             return X_test.to_html(index=False)
             
     else :
