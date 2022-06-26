@@ -356,7 +356,7 @@ def delete_buku():
 @login_required
 def model():
     if 'username' in session:
-        return render_template('user.html')
+        return render_template('model.html')
     else :
         flash('Anda harus login terlebih dahulu')
         return redirect(url_for('login'))
