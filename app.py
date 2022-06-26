@@ -1,6 +1,7 @@
+import csv
 from functools import wraps
 import pickle
-from flask import Flask, render_template, request, session, redirect, url_for, flash
+from flask import Flask, jsonify, render_template, request, session, redirect, url_for, flash
 from flask_paginate import Pagination, get_page_args
 import pandas as pd
 from hashlib import md5
@@ -359,12 +360,20 @@ def model():
     else :
         flash('Anda harus login terlebih dahulu')
         return redirect(url_for('login'))
+    
+@app.route("/api")
+@login_required
+def api():
+    data = {}
+    csvs = [row for row in csv.reader(open('model.csv', 'r'))]
+    data['data'] = csvs
+    return jsonify(data)
 
 # create model
 @app.route('/model/hasil', methods =['GET', 'POST'])
 @login_required
 def hasil():
-    if 'username' in session:
+   if 'username' in session:
         if request.method == 'GET':
             return render_template('user.html')
         elif request.method == 'POST':
@@ -379,11 +388,11 @@ def hasil():
             X_test['pred'] = pred
             df = pd.DataFrame(X_test, columns= ['Judul','Penerbit','Tahun Terbit','Tempat Terbit','Pengarang','Type Koleksi','pred'])
             df.to_csv (r'model.csv', index = False, header=True)
-            return X_test.to_html(index=False)
-            
-    else :
-        flash('Anda harus login terlebih dahulu')
-        return redirect(url_for('login'))
+            flash('Hasil Model Berhasil Tersimpan')
+            return redirect(url_for('model'))
+        else :
+            flash('Anda harus login terlebih dahulu')
+            return redirect(url_for('login'))
     
 
 if __name__ == '__main__':
