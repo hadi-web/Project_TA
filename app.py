@@ -93,13 +93,6 @@ def homepage():
         flash('Anda harus login terlebih dahulu')
         return redirect(url_for('login'))
 
-# =============================================
-# Routing input    ============================
-# =============================================
-@app.route('/input')
-def input():
-    return render_template('predict.html')
-
 
 # =============================================
 # Routing Login ===============================
