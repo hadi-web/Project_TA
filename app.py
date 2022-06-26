@@ -375,7 +375,7 @@ def api():
 def hasil():
    if 'username' in session:
         if request.method == 'GET':
-            return render_template('user.html')
+            return render_template('model.html')
         elif request.method == 'POST':
             model = pickle.load(open('model.pkl', 'rb'))
             tfidf_model = pickle.load(open('tfidf_vectorizer.pkl', 'rb'))

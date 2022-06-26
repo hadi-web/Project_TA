@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Data Model</title>
+	  <!-- Tell the browser to be responsive to screen width -->
+	  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<!-- DataTables -->
+  	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+</head>
+<body>
+	<div class="container">
+        <div class="row">
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+              <div class="alert alert-success alert-dismissible">
+              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">x</button>
+                  {% for message in messages %}
+                      {{ message }}
+                  {% endfor %}
+              </div>
+          {% endif %}
+          {% endwith %}
+	  	<div class="col-md-12" style="height:10px;">
+	  	</div>
+	    <div class="col-md-12">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#importCsvModal" disabled>
+                <span class="glyphicon glyphicon-open" aria-hidden="true"></span> Import CSV
+                </button>
+                <a href="{{url_for('homepage')}}">
+                    <i class="fa fa-dashboard"></i> <button type="button" class="btn btn-primary">Dashboard</button>
+                  </a>
+	    	<div class="panel panel-default">
+	    		<div class="panel-heading">
+	    			<h1>Data Model</h1>
+	    		</div>
+	    		<div class="panel-body table-responsive">
+	    			<table id="example" class="display" style="width:100%">
+				        <thead>
+				            <tr>
+				                <th>Judul</th>
+				                <th>Penerbit</th>
+				                <th>Tahun Terbit</th>
+				                <th>Tempat Terbit</th>
+				                <th>Pengarang</th>
+				                <th>Type Koleksi</th>
+				                <th>Prediksi</th>
+				            </tr>
+				        </thead>
+				        <tfoot>
+				            <tr>
+				                <th>Judul</th>
+				                <th>Penerbit</th>
+				                <th>Tahun Terbit</th>
+				                <th>Tempat Terbit</th>
+				                <th>Pengarang</th>
+				                <th>Type Koleksi</th>
+				                <th>Prediksi</th>
+				            </tr>
+				        </tfoot>
+				    </table>
+	    		</div>
+                <!-- modal import csv file --> 
+                <div class="modal fade" id="importCsvModal" tabindex="-1" role="dialog" aria-labelledby="importCsvModalLabel">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title" id="importCsvModalLabel">Import CSV</h4>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{{url_for('hasil')}}" method="post" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label for="csv_file">File CSV</label>
+                                        <input type="file" name="file_csv" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-primary">Import</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+	    		<div class="panel-footer">
+	    		</div>
+	    	</div>
+	    </div>
+	  </div>
+	</div>
+</body>
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<!-- DataTables -->
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+    $('#example').DataTable( {
+        "ajax": '{{ url_for('api') }}'
+	    } );
+	} );
+</script>
