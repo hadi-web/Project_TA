@@ -368,16 +368,17 @@ def hasil():
         if request.method == 'GET':
             return render_template('user.html')
         elif request.method == 'POST':
+            model = pickle.load(open('model.pkl', 'rb'))
+            tfidf_model = pickle.load(open('tfidf_vectorizer.pkl', 'rb'))
             csv_file = request.files['file_csv']
             X_test = pd.read_csv(csv_file)
-            tfidf_model = TfidfVectorizer(ngram_range=(1, 2))
-            X_test_tfidf = tfidf_model.fit_transform(X_test['Judul'] + ' ' + 
-                                                     X_test['Penerbit'] + ' ' + 
-                                                     X_test['Tempat Terbit'] + ' ' + X_test['Pengarang'])
-            vect = tfidf_model.transform(X_test_tfidf).toarray()
-            model = pickle.load(open('model.pkl', 'rb'))
+            X_test_tfidf = X_test['Judul'] + ' ' + X_test['Penerbit'] + ' ' + X_test['Tempat Terbit'] + ' ' + X_test['Pengarang']
+            tfidf = tfidf_model.transform(X_test_tfidf)
+            vect = tfidf.toarray()
             pred = model.predict(vect)
             X_test['pred'] = pred
+            df = pd.DataFrame(X_test, columns= ['Judul','Penerbit','Tahun Terbit','Tempat Terbit','Pengarang','Type Koleksi','pred'])
+            df.to_csv (r'model.csv', index = False, header=True)
             return X_test.to_html(index=False)
             
     else :
