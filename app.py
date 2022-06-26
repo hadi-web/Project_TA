@@ -127,9 +127,6 @@ def login():
         session['id_user'] = user['id_user']
         flash('Selamat datang ' + session['nama'])
         return redirect(url_for('homepage'))
-    # if 'logged_in' in session:
-    #     return redirect(url_for('homepage'))
-    # if request method is GET
     return render_template('login.html')
 
 # =============================================
