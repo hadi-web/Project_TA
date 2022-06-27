@@ -74,21 +74,17 @@ mysql = MySQL(app)
 def homepage():
     if 'username' in session:
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor_user = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         # num rows in table buku
         cursor.execute('SELECT * FROM tbl_buku')
-        cursor_user.execute('SELECT * FROM tbl_user')
         num_rows = cursor.rowcount
-        user_num = cursor_user.rowcount
         # fetch all rows from table buku
         num_buku = cursor.fetchall()
-        num_user = cursor_user.fetchall()
         # if login = True then show flash message and redirect to homepage
         if 'login' in session:
             flash('Anda sudah login')
             return redirect(url_for('homepage'))
         # if not login then show homepage
-        return render_template('index.html', num_rows=num_rows, num_buku=num_buku, num_user=num_user, user_num=user_num)
+        return render_template('index.html', num_rows=num_rows, num_buku=num_buku)
     else:
         flash('Anda harus login terlebih dahulu')
         return redirect(url_for('login'))
