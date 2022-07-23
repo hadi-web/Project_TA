@@ -26,7 +26,7 @@
 	  	</div>
 	    <div class="col-md-12">
             <button type="button" class="btn btn-success" data-toggle="modal" data-target="#importCsvModal">
-                <span class="glyphicon glyphicon-open" aria-hidden="true"></span> Import CSV
+                <span class="glyphicon glyphicon-open" aria-hidden="true"></span> Import Excel File
                 </button>
                 <a href="{{url_for('homepage')}}">
                     <i class="fa fa-dashboard"></i> <button type="button" class="btn btn-primary">Dashboard</button>
@@ -44,8 +44,7 @@
 				                <th>Tahun Terbit</th>
 				                <th>Tempat Terbit</th>
 				                <th>Pengarang</th>
-				                <th>Type Koleksi</th>
-				                <th>Prediksi</th>
+				                <th>Tipe Koleksi</th>
 				            </tr>
 				        </thead>
 				        <tfoot>
@@ -55,8 +54,7 @@
 				                <th>Tahun Terbit</th>
 				                <th>Tempat Terbit</th>
 				                <th>Pengarang</th>
-				                <th>Type Koleksi</th>
-				                <th>Prediksi</th>
+				                <th>Tipe Koleksi</th>
 				            </tr>
 				        </tfoot>
 				    </table>
@@ -72,8 +70,8 @@
                             <div class="modal-body">
                                 <form action="{{url_for('hasil')}}" method="post" enctype="multipart/form-data">
                                     <div class="form-group">
-                                        <label for="csv_file">File CSV</label>
-                                        <input type="file" name="file_csv" class="form-control">
+                                        <label for="xlsx_file">File Excel</label>
+                                        <input type="file" name="xlsx_file" class="form-control">
                                     </div>
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Import</button>

@@ -365,14 +365,24 @@ def hasil():
         elif request.method == 'POST':
             model = pickle.load(open('model.pkl', 'rb'))
             tfidf_model = pickle.load(open('tfidf_vectorizer.pkl', 'rb'))
-            csv_file = request.files['file_csv']
-            X_test = pd.read_csv(csv_file)
+            xlsx_file = request.files['xlsx_file']
+            X_test = pd.read_excel(xlsx_file)
             X_test_tfidf = X_test['Judul'] + ' ' + X_test['Penerbit'] + ' ' + X_test['Tempat Terbit'] + ' ' + X_test['Pengarang']
             tfidf = tfidf_model.transform(X_test_tfidf)
             pred = model.predict(tfidf)
-            X_test['pred'] = pred
-            df = pd.DataFrame(X_test, columns= ['Judul','Penerbit','Tahun Terbit','Tempat Terbit','Pengarang','Type Koleksi','pred'])
+            X_test['Tipe Koleksi'] = pred
+            df = pd.DataFrame(X_test, columns=["Judul", "Penerbit", "Tahun Terbit", "Tempat Terbit", "Pengarang", 
+                                               "Tipe Koleksi"])
+            df.columns = ['judul', 'penerbit', 'tahun_terbit', 'tempat_terbit', 'pengarang', 'kategori']
             df.to_csv (r'model.csv', index = False, header=True)
+            # upload to mysql database
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            data = pd.read_csv (r'model.csv')  
+            for raw in data.itertuples():
+                cursor.execute('INSERT INTO tbl_buku VALUES (NULL, % s, % s, % s, % s, % s, % s)',
+                               (raw.judul, raw.penerbit, raw.tahun_terbit, raw.tempat_terbit, 
+                                raw.pengarang, raw.kategori))
+            mysql.connection.commit()
             flash('Hasil Model Berhasil Tersimpan')
             return redirect(url_for('model'))
         else :
