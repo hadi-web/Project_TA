@@ -45,6 +45,7 @@
 				                <th>Tempat Terbit</th>
 				                <th>Pengarang</th>
 				                <th>Tipe Koleksi</th>
+				                <th>Pediksi</th>
 				            </tr>
 				        </thead>
 				        <tfoot>
@@ -55,6 +56,7 @@
 				                <th>Tempat Terbit</th>
 				                <th>Pengarang</th>
 				                <th>Tipe Koleksi</th>
+				                <th>Prediksi</th>
 				            </tr>
 				        </tfoot>
 				    </table>
@@ -65,13 +67,13 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title" id="importCsvModalLabel">Import CSV</h4>
+                                <h4 class="modal-title" id="importCsvModalLabel">Import Excel</h4>
                             </div>
                             <div class="modal-body">
                                 <form action="{{url_for('hasil')}}" method="post" enctype="multipart/form-data">
                                     <div class="form-group">
                                         <label for="xlsx_file">File Excel</label>
-                                        <input type="file" name="xlsx_file" class="form-control">
+                                        <input type="file" name="xlsx_file" class="form-control" required>
                                     </div>
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">Import</button>

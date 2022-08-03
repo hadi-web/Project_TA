@@ -1,7 +1,7 @@
 import csv
 from functools import wraps
 import pickle
-from flask import Flask, jsonify, render_template, request, session, redirect, url_for, flash
+from flask import Flask, jsonify, render_template, request, session, redirect, url_for, flash,Response
 from flask_paginate import Pagination, get_page_args
 import pandas as pd
 from hashlib import md5
@@ -12,6 +12,8 @@ from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
 from imblearn.over_sampling import SMOTE
+import io
+import xlwt
 
 app = Flask(__name__)
 app.secret_key = 'AHjkaIllq!@$%^&*()'
@@ -227,8 +229,8 @@ def add_book():
         tfidf_buku_bersih = tfidf_vectorizer.fit_transform(data['everything'])
         
         smote = SMOTE()
-        X_train_smote, y_train_smote = smote.fit_resample(tfidf_buku_bersih, data['Type Koleksi'])
-        x_train  , x_test, y_train, y_test =train_test_split(tfidf_buku_bersih, data['Type Koleksi'], test_size=0.2 ,random_state=250)
+        X_train_smote, y_train_smote = smote.fit_resample(tfidf_buku_bersih, data['Tipe Koleksi'])
+        x_train  , x_test, y_train, y_test =train_test_split(tfidf_buku_bersih, data['Tipe Koleksi'], test_size=0.15 ,random_state=80)
 
         clf = MultinomialNB()
         clf.fit(X_train_smote,y_train_smote)
@@ -265,8 +267,8 @@ def update_book():
         tfidf_buku_bersih = tfidf_vectorizer.fit_transform(data['everything'])
         
         smote = SMOTE()
-        X_train_smote, y_train_smote = smote.fit_resample(tfidf_buku_bersih, data['Type Koleksi'])
-        x_train  , x_test, y_train, y_test =train_test_split(tfidf_buku_bersih, data['Type Koleksi'], test_size=0.2 ,random_state=250)
+        X_train_smote, y_train_smote = smote.fit_resample(tfidf_buku_bersih, data['Tipe Koleksi'])
+        x_train  , x_test, y_train, y_test =train_test_split(tfidf_buku_bersih, data['Tipe Koleksi'], test_size=0.15 ,random_state=80)
 
         clf = MultinomialNB()
         clf.fit(X_train_smote,y_train_smote)
@@ -369,11 +371,12 @@ def hasil():
             X_test = pd.read_excel(xlsx_file)
             X_test_tfidf = X_test['Judul'] + ' ' + X_test['Penerbit'] + ' ' + X_test['Tempat Terbit'] + ' ' + X_test['Pengarang']
             tfidf = tfidf_model.transform(X_test_tfidf)
+            x_train  , x_test, y_train, y_test =train_test_split(tfidf, X_test['Tipe Koleksi'], test_size=0.15 ,random_state=80)
+
             pred = model.predict(tfidf)
-            X_test['Tipe Koleksi'] = pred
-            df = pd.DataFrame(X_test, columns=["Judul", "Penerbit", "Tahun Terbit", "Tempat Terbit", "Pengarang", 
-                                               "Tipe Koleksi"])
-            df.columns = ['judul', 'penerbit', 'tahun_terbit', 'tempat_terbit', 'pengarang', 'kategori']
+            X_test['Prediksi'] = pred
+            df = pd.DataFrame(X_test)
+            df.columns = ['judul', 'penerbit', 'tahun_terbit', 'tempat_terbit', 'pengarang', 'kategori','prediksi']
             df.to_csv (r'model.csv', index = False, header=True)
             # upload to mysql database
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -381,14 +384,52 @@ def hasil():
             for raw in data.itertuples():
                 cursor.execute('INSERT INTO tbl_buku VALUES (NULL, % s, % s, % s, % s, % s, % s)',
                                (raw.judul, raw.penerbit, raw.tahun_terbit, raw.tempat_terbit, 
-                                raw.pengarang, raw.kategori))
+                                raw.pengarang, raw.prediksi))
             mysql.connection.commit()
+            
+            sklearn_score_train = model.score(x_train,y_train)
             flash('Hasil Model Berhasil Tersimpan')
+            print(sklearn_score_train)
             return redirect(url_for('model'))
         else :
             flash('Anda harus login terlebih dahulu')
             return redirect(url_for('login'))
-    
 
+@app.route('/buku/download')
+def master_data():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT judul, penerbit, tahun_terbit, tempat_terbit, pengarang, kategori FROM tbl_buku')
+    result = cursor.fetchall()
+    
+    #output in bytes
+    output = io.BytesIO()
+    #create WorkBook object
+    workbook = xlwt.Workbook()
+    #add a sheet
+    sh = workbook.add_sheet('Books Report')
+    
+    #add headers
+    sh.write(0, 0, 'Judul')
+    sh.write(0, 1, 'Penerbit')
+    sh.write(0, 2, 'Tahun Terbit')
+    sh.write(0, 3, 'Tempat Terbit')
+    sh.write(0, 4, 'Pengarang')
+    sh.write(0, 5, 'Kategori')
+    
+    idx = 0
+    for row in result:
+        sh.write(idx+1, 0, row['judul'])
+        sh.write(idx+1, 1, row['penerbit'])
+        sh.write(idx+1, 2, str(row['tahun_terbit']))
+        sh.write(idx+1, 3, row['tempat_terbit'])
+        sh.write(idx+1, 4, row['pengarang'])
+        sh.write(idx+1, 5, row['kategori'])
+        idx += 1
+    
+    workbook.save(output)
+    output.seek(0)
+    
+    return Response(output, mimetype="application/ms-excel", headers={"Content-Disposition":"attachment;filename=master_data_buku.xls"})
+ 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -28,9 +28,9 @@
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addBookModal">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Tambah Koleksi
         </button>
-        <button type="button" class="btn btn-success">
-            <span class="glyphicon glyphicon-download" aria-hidden="true"></span> Download Master Data
-        </button>
+        <a href="{{url_for('master_data')}}">
+            <button type="button" class="btn btn-success"><i class="glyphicon glyphicon-download" aria-hidden="true"> </i> Master Data</button>
+          </a>
         <div class="box">
           <div class="box-header">
             <h3 class="box-title">Data Koleksi Buku</h3>
@@ -40,7 +40,7 @@
               <!--search in table-->
               <form action="{{ url_for('search') }}" method="post">
                 <div class="input-group">
-                  <input type="text" name="book" class="form-control" placeholder="Cari Berdasarkan Judul,Kategori,Tempat Terbit...">
+                  <input type="text" name="book" class="form-control" placeholder="Cari Berdasarkan Judul,Kategori,Tempat Terbit..." required>
                       <span class="input-group-btn">
                         <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
                         </button>
@@ -234,7 +234,7 @@
                     <input type="hidden" name="id_buku" value="{{row.id_buku}}">
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Update Koleksi</button>
+                        <button type="submit" class="btn btn-primary">Update Kategori</button>
                     </div>
                 </form>
             </div>
