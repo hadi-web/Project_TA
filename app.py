@@ -248,7 +248,7 @@ def add_book():
             # account = cursor.fetchone()
             cursor.execute('INSERT INTO tbl_buku VALUES (NULL, % s, % s, % s, % s, % s, % s )', (judul, penerbit, tahun_terbit, tempat_terbit, pengarang, my_predict[0] ))
             mysql.connection.commit()
-            flash(message = 'Buku berhasil ditambahkan' + ' kedalam kategori ' + my_predict[0])
+            flash(message = 'Buku berhasil ditambahkan' + ' kedalam kategori ' + my_predict[0] + ' ' + '\n Dengan tingkat akurasi klasifikasi sebesar {:.2f}'.format(clf.score(x_test, y_test)))
         elif request.method == 'POST':
             flash('Isi form dengan benar !')
         return redirect(url_for('buku', prediction = my_predict))
@@ -371,8 +371,8 @@ def hasil():
             X_test = pd.read_excel(xlsx_file)
             X_test_tfidf = X_test['Judul'] + ' ' + X_test['Penerbit'] + ' ' + X_test['Tempat Terbit'] + ' ' + X_test['Pengarang']
             tfidf = tfidf_model.transform(X_test_tfidf)
-            x_train  , x_test, y_train, y_test =train_test_split(tfidf, X_test['Tipe Koleksi'], test_size=0.15 ,random_state=80)
-
+            x_train , x_test, y_train, y_test =train_test_split(tfidf, X_test['Tipe Koleksi'], test_size=0.15 ,random_state=0)
+            model.fit(x_train,y_train)
             pred = model.predict(tfidf)
             X_test['Prediksi'] = pred
             df = pd.DataFrame(X_test)
@@ -387,9 +387,7 @@ def hasil():
                                 raw.pengarang, raw.prediksi))
             mysql.connection.commit()
             
-            sklearn_score_train = model.score(x_train,y_train)
-            flash('Hasil Model Berhasil Tersimpan')
-            print(sklearn_score_train)
+            flash('Tingkat Akurasi Yang Dihasilkan Adalah: {:.2f}'.format(model.score(x_test, y_test)))
             return redirect(url_for('model'))
         else :
             flash('Anda harus login terlebih dahulu')
