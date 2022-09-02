@@ -28,8 +28,15 @@
             <button type="button" class="btn btn-success" data-toggle="modal" data-target="#importCsvModal">
                 <span class="glyphicon glyphicon-open" aria-hidden="true"></span> Import Excel File
                 </button>
+                <a href="{{url_for('template')}}">
+                    <button type="button" class="btn btn-primary">
+						<span class="glyphicon glyphicon-download" aria-hidden="true"></span> Template
+					</button>
+                  </a>
                 <a href="{{url_for('homepage')}}">
-                    <i class="fa fa-dashboard"></i> <button type="button" class="btn btn-primary">Dashboard</button>
+                    <button type="button" class="btn btn-warning">
+						<span class="glyphicon glyphicon-dashboard" aria-hidden="true"></span> Dashboard
+					</button>
                   </a>
 	    	<div class="panel panel-default">
 	    		<div class="panel-heading">
@@ -44,8 +51,7 @@
 				                <th>Tahun Terbit</th>
 				                <th>Tempat Terbit</th>
 				                <th>Pengarang</th>
-				                <th>Tipe Koleksi</th>
-				                <th>Pediksi</th>
+				                <th>Kategori</th>
 				            </tr>
 				        </thead>
 				        <tfoot>
@@ -55,8 +61,7 @@
 				                <th>Tahun Terbit</th>
 				                <th>Tempat Terbit</th>
 				                <th>Pengarang</th>
-				                <th>Tipe Koleksi</th>
-				                <th>Prediksi</th>
+				                <th>Kategori</th>
 				            </tr>
 				        </tfoot>
 				    </table>

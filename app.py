@@ -221,20 +221,9 @@ def search():
 @login_required
 def add_book():
     if 'username' in session:
-        
         data = pd.read_csv('data buku.csv',encoding='latin-1')
-        
-        data['everything'] = pd.DataFrame(data['Judul'] + ' ' + data['Penerbit'] + ' ' + data['Tempat Terbit'] + ' ' + data['Pengarang'])
-        tfidf_vectorizer = TfidfVectorizer(ngram_range=(1, 2))
-        tfidf_buku_bersih = tfidf_vectorizer.fit_transform(data['everything'])
-        
-        smote = SMOTE()
-        X_train_smote, y_train_smote = smote.fit_resample(tfidf_buku_bersih, data['Tipe Koleksi'])
-        x_train  , x_test, y_train, y_test =train_test_split(tfidf_buku_bersih, data['Tipe Koleksi'], test_size=0.15 ,random_state=80)
-
-        clf = MultinomialNB()
-        clf.fit(X_train_smote,y_train_smote)
-
+        model = pickle.load(open('model.pkl', 'rb'))
+        tfidf_model = pickle.load(open('tfidf_vectorizer.pkl', 'rb'))
         if request.method == 'POST':
             judul = request.form['judul']
             penerbit = request.form['penerbit']
@@ -242,13 +231,12 @@ def add_book():
             pengarang = request.form['pengarang']
             tahun_terbit = request.form['tahun_terbit']
             data1 = [judul + penerbit + tempat_terbit + pengarang]
-            vect = tfidf_vectorizer.transform(data1)
-            my_predict = clf.predict(vect)
+            vect = tfidf_model.transform(data1)
+            my_predict = model.predict(vect)
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-            # account = cursor.fetchone()
             cursor.execute('INSERT INTO tbl_buku VALUES (NULL, % s, % s, % s, % s, % s, % s )', (judul, penerbit, tahun_terbit, tempat_terbit, pengarang, my_predict[0] ))
             mysql.connection.commit()
-            flash(message = 'Buku berhasil ditambahkan' + ' kedalam kategori ' + my_predict[0] + ' ' + '\n Dengan tingkat akurasi klasifikasi sebesar {:.2f}'.format(clf.score(x_test, y_test)))
+            flash(message = 'Buku berhasil ditambahkan' + ' kedalam kategori ' + my_predict[0].upper())
         elif request.method == 'POST':
             flash('Isi form dengan benar !')
         return redirect(url_for('buku', prediction = my_predict))
@@ -353,7 +341,7 @@ def model():
 @login_required
 def api():
     data = {}
-    csvs = [row for row in csv.reader(open('model.csv', 'r'))]
+    csvs = [row for row in csv.reader(open('model.csv', 'r',encoding='utf-8'))]
     data['data'] = csvs
     return jsonify(data)
 
@@ -365,18 +353,18 @@ def hasil():
         if request.method == 'GET':
             return render_template('model.html')
         elif request.method == 'POST':
+            data_csv = pd.read_csv('data buku.csv',encoding='latin-1')
             model = pickle.load(open('model.pkl', 'rb'))
             tfidf_model = pickle.load(open('tfidf_vectorizer.pkl', 'rb'))
             xlsx_file = request.files['xlsx_file']
             X_test = pd.read_excel(xlsx_file)
             X_test_tfidf = X_test['Judul'] + ' ' + X_test['Penerbit'] + ' ' + X_test['Tempat Terbit'] + ' ' + X_test['Pengarang']
             tfidf = tfidf_model.transform(X_test_tfidf)
-            x_train , x_test, y_train, y_test =train_test_split(tfidf, X_test['Tipe Koleksi'], test_size=0.15 ,random_state=0)
-            model.fit(x_train,y_train)
             pred = model.predict(tfidf)
-            X_test['Prediksi'] = pred
+            model.fit(tfidf,pred)
+            X_test['prediksi'] = pred
             df = pd.DataFrame(X_test)
-            df.columns = ['judul', 'penerbit', 'tahun_terbit', 'tempat_terbit', 'pengarang', 'kategori','prediksi']
+            df.columns = ['judul', 'penerbit', 'tahun_terbit', 'tempat_terbit', 'pengarang','prediksi']
             df.to_csv (r'model.csv', index = False, header=True)
             # upload to mysql database
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -387,7 +375,7 @@ def hasil():
                                 raw.pengarang, raw.prediksi))
             mysql.connection.commit()
             
-            flash('Tingkat Akurasi Yang Dihasilkan Adalah: {:.2f}'.format(model.score(x_test, y_test)))
+            flash('Tingkat Akurasi Yang Dihasilkan Adalah: {:.2f}'.format(model.score(tfidf, pred)))
             return redirect(url_for('model'))
         else :
             flash('Anda harus login terlebih dahulu')
@@ -428,6 +416,28 @@ def master_data():
     output.seek(0)
     
     return Response(output, mimetype="application/ms-excel", headers={"Content-Disposition":"attachment;filename=master_data_buku.xls"})
- 
+
+@app.route('/model/template')
+def template():
+    #output in bytes
+    output = io.BytesIO()
+    #create WorkBook object
+    workbook = xlwt.Workbook()
+    #add a sheet
+    sh = workbook.add_sheet('Books Report')
+    
+    #add headers
+    sh.write(0, 0, 'Judul')
+    sh.write(0, 1, 'Penerbit')
+    sh.write(0, 2, 'Tahun Terbit')
+    sh.write(0, 3, 'Tempat Terbit')
+    sh.write(0, 4, 'Pengarang')
+    
+    workbook.save(output)
+    output.seek(0)
+    
+    return Response(output, mimetype="application/ms-excel", headers={"Content-Disposition":"attachment;filename=template data buku baru.xls"})
+
+
 if __name__ == '__main__':
     app.run(debug=True)
