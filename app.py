@@ -9,8 +9,8 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection  import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 # from sklearn.metrics import classification_report
-from flask_mysqldb import MySQL
 # from sklearn.metrics import confusion_matrix
+from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
 from imblearn.over_sampling import SMOTE
@@ -361,10 +361,10 @@ def hasil():
             X_test_tfidf = X_test['Judul'] + ' ' + X_test['Penerbit'] + ' ' + X_test['Tempat Terbit'] + ' ' + X_test['Pengarang']
             tfidf = tfidf_model.transform(X_test_tfidf)
             pred = model.predict(tfidf)
-            # model.fit(tfidf,pred)
             X_test['prediksi'] = pred
+            # model.fit(tfidf,pred)
             df = pd.DataFrame(X_test)
-            df.columns = ['judul', 'penerbit', 'tahun_terbit', 'tempat_terbit', 'pengarang','tipe_koleksi','prediksi']
+            df.columns = ['judul', 'penerbit', 'tahun_terbit', 'tempat_terbit', 'pengarang','prediksi']
             # df.to_excel(r'model.xlsx', index = False, header=True)
             df.to_csv(r'model.csv', index = False, header=True)
             # upload to mysql database
